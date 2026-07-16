@@ -3,25 +3,33 @@ WITH staging AS (
     FROM {{ ref('stg_sdud') }}
 ),
 
+drug_annuals AS (
+    SELECT
+        calendar_year,
+        ndc,
+        MAX(product_name) AS product_name,
+        SUM(medicaid_amount_reimbursed) AS reimbursed_per_drug
+    FROM staging
+    GROUP BY calendar_year, ndc
+),
+
 aggregate_reimbursements AS (
     SELECT *,
-        SUM(medicaid_amount_reimbursed) OVER(PARTITION BY calendar_year) AS total_annual_reimbursed
-        SUM(medicaid_amount_reimbursed) OVER(PARTITION BY calendar_year, ndc) AS reimbursed_per_drug
-    FROM staging 
+        SUM(reimbursed_per_drug) OVER(PARTITION BY calendar_year) AS total_annual_reimbursed
+    FROM drug_annuals
 ),
 
 calculations AS (
     SELECT *,
-        reimbursed_per_drug - (0.005 * total_annual_reimbursed) AS excess_amount
+        reimbursed_per_drug - (0.005 * total_annual_reimbursed) AS excess_amount,
         CASE
-            WHEN excess_amount > 0 THEN TRUE
+            WHEN reimbursed_per_drug - (0.005 * total_annual_reimbursed) > 0 THEN TRUE
             ELSE FALSE
         END AS is_high_cost_drug
     FROM aggregate_reimbursements
 )
 
 SELECT
-    sdud_id,
     calendar_year,
     ndc,
     product_name,
