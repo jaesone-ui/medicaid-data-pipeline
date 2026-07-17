@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: stg_sdud
+    description: "This is the staging model for SDUD data."
+    columns:
+      - name: sdud_id
+        description: "The unique identifier for each SDUD record."
+        tests:
+          - not_null
+          - unique
+      - name: us_state
+        description: "The U.S. state associated with the SDUD record."
+        tests:
+          - not_null
+      - name: ndc
+        description: "The National Drug Code (NDC) associated with the SDUD record."
+        tests:
+          - not_null
+      - name: calendar_year
+        description: "The calendar year associated with the SDUD record."
+        tests:
+          - not_null
+      - name: calendar_quarter
+        description: "The calendar quarter associated with the SDUD record."
+        tests:
+          - not_null
+      - name: units_reimbursed
+        description: "The number of units reimbursed for the SDUD record."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: number_of_prescriptions
+        description: "The number of prescriptions for the SDUD record."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: total_amount_reimbursed
+        description: "The total amount reimbursed for the SDUD record."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: medicaid_amount_reimbursed
+        description: "The amount reimbursed by Medicaid for the SDUD record."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: non_medicaid_amount_reimbursed
+        description: "The amount reimbursed by non-Medicaid sources for the SDUD record."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0

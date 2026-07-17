@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: fct_sdud
+    description: "This is the SDUD data mart model."
+    columns:
+      - name: sdud_id
+        description: "The unique identifier for each SDUD record."
+        tests:
+          - not_null
+          - unique
+      - name: ndc
+        description: "The National Drug Code (NDC) associated with the SDUD record."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_drug')
+                field: ndc
+      - name: us_state
+        description: "The U.S. state associated with the SDUD record."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: us_state
+  - name: fct_high_cost_drugs
+    description: "This is the high cost drugs data mart model."
+    columns:
+      - name: high_cost_drugs_id
+        description: "The unique identifier for each high cost drugs record."
+        tests:
+          - not_null
+          - unique
+  - name: fct_state_top_prescribed
+    description: "This is the state top prescribed drugs data mart model."
+    columns:
+      - name: state_top_prescribed_id
+        description: "The unique identifier for each state top prescribed drugs record."
+        tests:
+          - not_null
+          - unique
+  - name: dim_drug
+    description: "This is the drug dimension model."
+    columns:
+      - name: drug_id
+        description: "The unique identifier for each drug."
+        tests:
+          - not_null
+          - unique
+  - name: dim_location
+    description: "This is the location dimension model."
+    columns:
+      - name: location_id
+        description: "The unique identifier for each location."
+        tests:
+          - not_null
+          - unique

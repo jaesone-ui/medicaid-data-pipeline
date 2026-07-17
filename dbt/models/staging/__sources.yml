@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: sdud_raw
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: "{{ env_var('GCP_DATASET') }}"
+    description: "This source contains raw SDUD data."
+    tables:
+      - name: yearly_drug_utilization
+        description: "This table contains raw drug utilization data."

@@ -4,8 +4,8 @@ from airflow import DAG
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 
 PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
-DATASET_NAME = "sdud"
-TABLE_NAME = "sdud_raw_historical"
+DATASET_NAME = "sdud_raw"
+TABLE_NAME = "yearly_drug_utilization"
 
 with DAG(
     dag_id="gcs_to_bigquery_sdud",
