@@ -3,15 +3,9 @@ import os
 from google.cloud import storage
 from src.extract import extract_data
 
-def upload_blob(bucket_name, destination_blob_name, year):
-    GCP_KEY = os.environ.get("GCP_KEY_PATH")
-    if not GCP_KEY:
-        raise ValueError("GCP_KEY_PATH not found in environment variables.")
-    if os.path.exists("/usr/local/airflow/"):
-        new_GCP_KEY = os.path.join("/usr/local/airflow", GCP_KEY)     
-        storage_client = storage.Client.from_service_account_json(new_GCP_KEY)
-    else:           
-        storage_client = storage.Client.from_service_account_json(GCP_KEY)
+# function to upload data to GCS (local use only)
+def upload_blob(bucket_name, destination_blob_name, year):    
+    storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
     download_url = extract_data(year)

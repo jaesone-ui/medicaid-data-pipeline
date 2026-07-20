@@ -1,14 +1,16 @@
 from datetime import datetime, timedelta
 import os
 import sys
+import requests
 from airflow import DAG
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.operators.python import PythonOperator
 from airflow.models.param import Param
+from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from cosmos import DbtTaskGroup, ProjectConfig, ProfileConfig, ExecutionConfig
 
 sys.path.append("/usr/local/airflow")
-from src.load import upload_blob
+from src.extract import extract_data
 
 # Environment variables
 PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
@@ -20,7 +22,7 @@ DBT_PROFILES_DIR = "/usr/local/airflow/dbt/profiles.yml"
 # dbt configs
 profile_config = ProfileConfig(
     profile_name="medicaid_data_pipeline",
-    target_name="dev",
+    target_name="docker",
     profiles_yml_filepath=DBT_PROFILES_DIR
 )
 execution_config = ExecutionConfig(dbt_executable_path="/usr/local/airflow/dbt_venv/bin/dbt")
@@ -30,7 +32,20 @@ def upload_to_gcs(**context):
     year = context["params"]["year"]
     bucket_name = "medicaid-raw"
     destination_blob_name = f"sdud-raw/sdud_raw_{year}.csv"
-    upload_blob(bucket_name, destination_blob_name, year)
+    download_url = extract_data(year)
+
+    gcs_hook = GCSHook(gcp_conn_id="google_cloud_default")
+    with requests.get(download_url, stream=True) as r:
+        r.raise_for_status()
+        gcs_hook.upload(
+            bucket_name=bucket_name,
+            object_name=destination_blob_name,
+            filename=None,
+            data=r.content,
+            mime_type="text/csv"
+        )
+
+    print(f"SDUD {year} data uploaded to {destination_blob_name}.")
 
 with DAG(
     dag_id="gcs_to_bigquery_sdud",

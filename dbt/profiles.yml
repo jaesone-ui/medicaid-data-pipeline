@@ -1,10 +1,19 @@
 medicaid_data_pipeline: # this needs to match the profile in your dbt_project.yml file
-    target: dev
+    target: "{{ env_var('DBT_TARGET', 'dev') }}"
     outputs:
         dev:
             type: bigquery
+            method: oauth
+            project: "{{ env_var('GCP_PROJECT_ID') }}" # Replace this with your project id
+            dataset: "{{ env_var('GCP_DATASET') }}" # Replace this with dbt_your_name, e.g. dbt_bilbo
+            threads: 1
+            timeout_seconds: 300
+            location: US
+            priority: interactive
+        docker:
+            type: bigquery
             method: service-account
-            keyfile: "{{ env_var('GCP_KEY_PATH') }}" # replace this with the full path to your keyfile
+            keyfile: "{{ env_var('GCP_KEY_PATH') }}"
             project: "{{ env_var('GCP_PROJECT_ID') }}" # Replace this with your project id
             dataset: "{{ env_var('GCP_DATASET') }}" # Replace this with dbt_your_name, e.g. dbt_bilbo
             threads: 1

@@ -221,3 +221,10 @@ __marimo__/
 
 # Data & Security Credentials
 *.json
+
+# Terraform local directory and binaries
+.terraform/
+
+# Terraform state files
+*.tfstate
+*.tfstate.backup
